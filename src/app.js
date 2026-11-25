@@ -10,7 +10,7 @@ function put(s,v){return new Promise((ok,no)=>{const t=db.transaction(s,'readwri
 function del(s,id){return new Promise((ok,no)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).delete(id);t.oncomplete=ok;t.onerror=()=>no(t.error)})}
 const main=$('#main'), modal=$('#modal');
 function toast(s){const n=$('#toast');n.textContent=s;n.classList.add('is-visible');setTimeout(()=>n.classList.remove('is-visible'),2200)}
-function btn(action,label,extra=''){return `<button class="button primary" data-action="${action}" ${extra}>${label}</button>`}
+function btn(action,label,extra=''){const match=extra.match(/class="([^"]*)"/),classes=match?match[1]:'button primary',attrs=extra.replace(/class="[^"]*"/,'');return `<button class="${classes}" data-action="${action}" ${attrs}>${label}</button>`}
 function heading(k,t,sub=''){return `<div class="page-heading"><div><div class="eyebrow">${k}</div><h1>${t}</h1><p>${sub}</p></div></div>`}
 function show(html){modal.innerHTML=html;modal.showModal()}
 async function active(){const ps=await all('programmes');return ps.find(p=>p.active)||ps[0]}
