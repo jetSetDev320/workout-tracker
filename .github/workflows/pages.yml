@@ -25,7 +25,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate static app
         run: |
-          node --check src/app.js
+          node --input-type=module --check < src/app.js
+          node --input-type=module --check < src/db.js
+          node --input-type=module --check < src/charts.js
           node --check service-worker.js
           node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest', 'utf8'))"
           test -f index.html
