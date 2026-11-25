@@ -21,6 +21,7 @@ async function render(){
  if(state.page==='body')await bodyProgress();
  if(state.page==='history')await history();
  if(state.page==='settings')settings();
+ if(state.page==='export')exportDataPage();
  }catch(e){console.error(e);main.innerHTML=`<p class="empty-state">${esc(e.message)}</p>`}
 }
 async function homeLegacy(){
@@ -66,7 +67,7 @@ async function history(){
  '<div class="filter-row"><select id="historyProgramme"><option value="all">All programmes</option>'+programmes.map(p=>'<option value="'+p.id+'" '+(selected===p.id?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select><select id="historyStatus"><option value="all">All sessions</option><option value="done" '+(status==='done'?'selected':'')+'>Completed</option><option value="active" '+(status==='active'?'selected':'')+'>In progress</option></select></div>'+
  (filtered.length?'<div class="history-list">'+filtered.map(x=>{const rows=sets.filter(y=>y.session===x.id),logged=rows.filter(y=>y.weight!==''&&y.weight!=null&&y.reps!==''&&Number(y.reps)>0);return '<article class="history-session-card"><div><span class="eyebrow">'+esc(x.date)+' · '+(x.status==='done'?'COMPLETED':'IN PROGRESS')+'</span><h3>'+esc(x.day)+'</h3><p>'+logged.length+' sets recorded · '+new Set(rows.map(y=>y.exercise)).size+' exercises</p></div><div class="inline-actions">'+(x.status==='active'?btn('resume','Resume','data-id="'+x.id+'"'):'')+'<button class="mini-action" data-action="session-detail" data-id="'+x.id+'">›</button></div></article>'}).join('')+'</div>':empty('No sessions found','Change the filters or finish a workout.'));
 }
-function settings(){main.innerHTML=heading('PREFERENCES & DATA','Settings','Your training records stay in this browser.')+`<section class="settings-card"><h2>Export full backup</h2><p>Download programmes, sessions, sets and measurements.</p>${btn('backup','Export JSON')}</section><section class="settings-card"><h2>Restore backup</h2><input id="restore" type="file" accept=".json,application/json"></section><p>No account, backend, analytics or cloud sync.</p>`}
+function settingsLegacy(){main.innerHTML=heading('PREFERENCES & DATA','Settings','Your training records stay in this browser.')+`<section class="settings-card"><h2>Export full backup</h2><p>Download programmes, sessions, sets and measurements.</p>${btn('backup','Export JSON')}</section><section class="settings-card"><h2>Restore backup</h2><input id="restore" type="file" accept=".json,application/json"></section><p>No account, backend, analytics or cloud sync.</p>`}
 function form(title,fields,action){show(`<form class="modal-content" data-form="${action}"><div class="modal-head"><h2>${title}</h2><button type="button" data-action="close-modal">×</button></div>${fields}<div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancel</button><button class="button primary">Save</button></div></form>`)}
 function field(label,name,placeholder='',type='text',value='',required=true){return `<label class="form-label">${label}<input name="${name}" type="${type}" value="${esc(value)}" placeholder="${placeholder}" ${required?'required':''}></label>`}
 async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(!b)return;if(b.dataset.nav){state.page=b.dataset.nav;return render()}const a=b.dataset.action,id=b.dataset.id;try{
@@ -74,6 +75,8 @@ async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(
  else if(a==='history'){state.page='history'}
  else if(a==='progress'){state.page='progress';state.progressView='overview'}
  else if(a==='open-settings'){state.page='settings'}
+ else if(a==='export-data'){state.page='export'}
+ else if(a==='export-now'){const names=['programmes','days','sessions','sets','measurements','settings'],data={format:'workout-tracker-backup',version:1,exportedAt:stamp(),data:{}};for(const n of names){const el=$('#export-'+n);if(el?.checked)data.data[n]=await all(n)}data.data.exercises=await all('exercises');download(data,'workout-tracker-export.json');toast('Export created')}
  else if(a==='body-progress'||a==='body'){state.page='body'}
  else if(a==='progress-exercises'){state.progressView='list';state.page='progress'}
  else if(a==='exercise-detail'){state.exercise=id;state.progressView='detail';state.page='progress'}
@@ -183,3 +186,12 @@ async function exerciseLibrary(){
  const names=['Bench Press','Incline Chest Press','Chest Press','Lat Pulldown','Seated Row','Cable Row','Squat','Leg Press','Leg Extension','Leg Curl','Romanian Deadlift','Deadlift','Overhead Press','Shoulder Press','Lateral Raise','Biceps Curl','Hammer Curl','Triceps Pushdown','Triceps Extension','Calf Raise','Plank','Crunch','Hip Thrust','Face Pull','Pull Up','Push Up'];
  show('<div class="modal-content"><div class="modal-head"><h2>Exercise library</h2><button type="button" data-action="close-modal">×</button></div><label class="form-label">Choose exercise<select id="libraryChoice">'+names.map(n=>'<option>'+n+'</option>').join('')+'</select></label><div class="modal-actions"><button class="button secondary" data-action="close-modal">Cancel</button><button class="button primary" data-action="choose-library-exercise">Add exercise</button></div><button class="button ghost full-button" data-action="custom-exercise">Create custom exercise</button></div>');
 }
+
+function settings(){main.innerHTML=heading('SETTINGS','Settings','Manage your data and app preferences')+
+ '<section class="settings-card"><h3>Data management</h3><div class="settings-row"><div><strong>Export data</strong><p>Choose what to include in your backup</p></div><button class="button secondary" data-action="export-data">Open</button></div><div class="settings-row"><div><strong>Import plan</strong><p>Upload or paste JSON / Markdown</p></div><button class="button secondary" data-action="import-plan">Import</button></div><div class="settings-row"><div><strong>Restore backup</strong><p>Replace local data from a backup</p></div><label class="button secondary file-button">Choose<input id="restore" type="file" accept=".json,application/json" hidden></label></div></section>'+
+ '<section class="settings-card"><h3>App settings</h3><div class="settings-row"><div><strong>Units</strong><p>Weight and measurements</p></div><span class="pill">Metric · kg / cm</span></div><div class="settings-row"><div><strong>Storage</strong><p>IndexedDB · this browser only</p></div><span class="pill pill-active">Local</span></div></section>'+
+ '<section class="settings-card"><h3>About</h3><p>Gym Tracker · Version 1.1</p><p>No account or cloud sync. Export backups regularly; clearing browser site data can permanently erase records.</p></section>'}
+function exportDataPage(){main.innerHTML='<div class="workout-topline"><button class="back-link" data-action="open-settings">← Settings</button></div>'+heading('DATA MANAGEMENT','Export data','Choose the records to include in your JSON backup')+
+ '<section class="settings-card"><h3>Choose what to export</h3>'+[['programmes','Workout plans'],['sessions','Workout history'],['measurements','Body measurements'],['settings','Settings']].map(([id,label])=>'<div class="settings-row"><strong>'+label+'</strong><input class="switch" id="export-'+id+'" type="checkbox" checked></div>').join('')+'</section>'+
+ '<section class="settings-card"><h3>Format</h3><p>JSON backup · preserves IDs and relationships for restoring this app</p></section>'+
+ btn('export-now','Export selected data','class="button primary full-button"')}
