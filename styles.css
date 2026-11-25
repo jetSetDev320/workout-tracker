@@ -17,3 +17,9 @@ html,body,.app-shell{background:#fff}
 .stat-card,.settings-card,.day-card,.programme-card,.day-editor-card,.workout-exercise-card,.history-session-card,.analytics-panel,.chart-panel,.recent-card{border-radius:12px;box-shadow:0 2px 9px rgba(30,75,130,.045)}
 .segmented-control{border-radius:10px;background:#f4f7fb;padding:3px}.segmented-control button.selected{background:white;color:var(--blue);box-shadow:0 1px 4px #203d641a}
 @media(min-width:600px){.app-shell{border-left:1px solid #eef2f7;border-right:1px solid #eef2f7}}
+
+.home-tile .tile-icon.workouts{background:#e2f0ff;color:#2585ff}
+.home-tile .tile-icon.progress{background:#dcf8ed;color:#19ad7b}
+.home-tile .tile-icon.history{background:#ece9ff;color:#7867f5}
+.home-tile .tile-icon.settings{background:#fff0e3;color:#f28a32}
+.home-tile .tile-icon svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
