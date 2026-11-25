@@ -15,7 +15,7 @@ function heading(k,t,sub=''){return `<div class="page-heading"><div><div class="
 function show(html){modal.innerHTML=html;modal.showModal()}
 async function active(){const ps=await all('programmes');return ps.find(p=>p.active)||ps[0]}
 async function render(){
- document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===state.page));
+ document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b.dataset.nav===(state.page==='body'?'progress':state.page)));
  try{
  if(state.page==='home')await home();
  if(state.page==='programmes')await plans();
