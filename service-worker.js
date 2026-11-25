@@ -1,1 +1,14 @@
-const CACHE='workout-tracker-v1';const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./icon.svg','./src/app.js'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(r.ok)caches.open(CACHE).then(cache=>cache.put(e.request,r.clone()));return r}).catch(()=>caches.match('./index.html')))))});
+const CACHE='workout-tracker-v1';
+const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./icon.svg','./src/app.js'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+  event.respondWith(caches.match(event.request).then(cached=>{
+    if(cached)return cached;
+    return fetch(event.request).then(response=>{
+      if(response.ok)caches.open(CACHE).then(cache=>cache.put(event.request,response.clone()));
+      return response;
+    }).catch(()=>caches.match('./index.html'));
+  }));
+});
