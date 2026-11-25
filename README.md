@@ -8,7 +8,8 @@ A mobile-first workout tracker designed for GitHub Pages. It uses plain HTML, CS
 - Add, edit and remove exercises with set, rep-range and target-RIR prescriptions.
 - Log weight, reps and RIR per set; entries autosave locally.
 - Resume unfinished sessions and review completed sessions.
-- View exercise-level recorded set history.
+- View exercise-level recorded set history and double-progression guidance based on completed reps and recorded RIR.
+- Record body weight, waist, chest, upper-arm and thigh measurements, with a body-weight trend chart.
 - Import a plan JSON file and export a full JSON backup.
 - Service-worker app-shell cache for offline reopening after the first visit.
 
