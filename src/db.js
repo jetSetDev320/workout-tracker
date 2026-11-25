@@ -1,0 +1,8 @@
+export const STORES=['programmes','days','exercises','sessions','sets','measurements','settings'];
+let database;
+export function openDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('workout-tracker',1);request.onupgradeneeded=()=>STORES.forEach(name=>{if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name,{keyPath:'id'})});request.onsuccess=()=>{database=request.result;resolve(database)};request.onerror=()=>reject(request.error)})}
+export function all(name){return new Promise((resolve,reject)=>{const request=database.transaction(name).objectStore(name).getAll();request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
+export function get(name,id){return new Promise((resolve,reject)=>{const request=database.transaction(name).objectStore(name).get(id);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
+export function put(name,value){return new Promise((resolve,reject)=>{const tx=database.transaction(name,'readwrite');tx.objectStore(name).put(value);tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error)})}
+export function del(name,id){return new Promise((resolve,reject)=>{const tx=database.transaction(name,'readwrite');tx.objectStore(name).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+export function replaceAll(data){return new Promise((resolve,reject)=>{const tx=database.transaction(STORES,'readwrite');for(const name of STORES){const store=tx.objectStore(name);store.clear();for(const row of data[name]||[])store.put(row)}tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
