@@ -3,29 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7faff">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="A private, local-first workout tracker.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Workout Tracker</title>
+  <title>Gym Tracker</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="app" class="app-shell">
     <header class="topbar">
-      <a class="brand" href="./" data-action="home" aria-label="Gym Tracker home"><span class="brand-mark" aria-hidden="true">⌁</span><span>Gym Tracker</span></a>
+      <a class="brand" href="./" data-action="home" aria-label="Gym Tracker home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M9 10v4M15 10v4M18 7v10M21 9v6M6 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Gym Tracker</span></a>
       <button class="icon-button" data-action="open-settings" aria-label="Settings" title="Settings">⚙</button>
     </header>
     <main id="main" class="main-content" tabindex="-1" aria-live="polite">
       <div class="loading-state">Loading your training space…</div>
     </main>
     <nav class="bottom-nav" aria-label="Main navigation">
-      <button data-nav="home" class="nav-item is-active"><span class="nav-icon">⌂</span><span>Home</span></button>
-      <button data-nav="programmes" class="nav-item"><span class="nav-icon">▤</span><span>Workouts</span></button>
-      <button data-nav="progress" class="nav-item"><span class="nav-icon">◩</span><span>Progress</span></button>
-      <button data-nav="history" class="nav-item"><span class="nav-icon">◷</span><span>History</span></button>
+      <button data-nav="home" class="nav-item is-active"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg></span><span>Home</span></button>
+      <button data-nav="programmes" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>Workouts</span></button>
+      <button data-nav="progress" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-7"/></svg></span><span>Progress</span></button>
+      <button data-nav="history" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>History</span></button>
     </nav>
   </div>
   <dialog id="modal" class="modal"></dialog>
