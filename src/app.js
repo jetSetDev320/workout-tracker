@@ -16,6 +16,7 @@ async function render(){
  if(state.page==='home')await home();
  if(state.page==='programmes')await plans();
  if(state.page==='plan')await plan();
+ if(state.page==='dayDetail')await dayDetail();
  if(state.page==='workout')await workout();
  if(state.page==='progress')await progress();
  if(state.page==='body')await bodyProgress();
@@ -35,7 +36,7 @@ async function plan(){
  const p=await get('programmes',state.programme);if(!p){state.page='programmes';return plans()}
  const days=(await all('days')).filter(d=>d.programme===p.id).sort((a,b)=>a.order-b.order);
  main.innerHTML='<div class="workout-topline"><button class="back-link" data-action="programmes">← Plans</button></div>'+heading('PROGRAMME EDITOR',esc(p.name),'Changes here affect future workouts only.')+'<div class="toolbar-row">'+btn('rename-plan','Rename')+btn('add-day','+ Add workout day')+'</div>'+
- days.map((d,di)=>'<section class="day-editor-card"><div class="day-editor-heading"><div><span class="eyebrow">DAY '+(di+1)+'</span><h2>'+esc(d.name)+'</h2></div><div class="inline-actions"><button class="mini-action" data-action="move-day-up" data-id="'+d.id+'" '+(di===0?'disabled':'')+'>↑</button><button class="mini-action" data-action="move-day-down" data-id="'+d.id+'" '+(di===days.length-1?'disabled':'')+'>↓</button><button class="mini-action" data-action="edit-day" data-id="'+d.id+'">Edit</button><button class="mini-action danger" data-action="delete-day" data-id="'+d.id+'">×</button></div></div>'+
+ days.map((d,di)=>'<section class="day-editor-card"><div class="day-editor-heading"><div><span class="eyebrow">DAY '+(di+1)+'</span><h2>'+esc(d.name)+'</h2><button class="text-button" data-action="day-detail" data-id="'+d.id+'">View day</button></div><div class="inline-actions"><button class="mini-action" data-action="move-day-up" data-id="'+d.id+'" '+(di===0?'disabled':'')+'>↑</button><button class="mini-action" data-action="move-day-down" data-id="'+d.id+'" '+(di===days.length-1?'disabled':'')+'>↓</button><button class="mini-action" data-action="edit-day" data-id="'+d.id+'">Edit</button><button class="mini-action danger" data-action="delete-day" data-id="'+d.id+'">×</button></div></div>'+
  (d.exercises||[]).map((x,i)=>'<div class="plan-exercise-row"><div class="exercise-order">'+(i+1)+'</div><div class="exercise-detail"><strong>'+esc(x.name)+'</strong><p>'+x.sets+' sets · '+x.min+'–'+x.max+' reps · '+x.rir+' RIR</p></div><div class="inline-actions"><button class="mini-action" data-action="move-ex-up" data-day="'+d.id+'" data-id="'+x.id+'" '+(i===0?'disabled':'')+'>↑</button><button class="mini-action" data-action="move-ex-down" data-day="'+d.id+'" data-id="'+x.id+'" '+(i===d.exercises.length-1?'disabled':'')+'>↓</button><button class="mini-action" data-action="edit-exercise" data-id="'+x.id+'">Edit</button><button class="mini-action danger" data-action="remove-exercise" data-id="'+x.id+'" data-day="'+d.id+'">×</button></div></div>').join('')+
  btn('add-exercise','+ Add exercise','data-id="'+d.id+'" class="button secondary full-button"')+'<button class="button ghost full-button" data-action="exercise-library" data-id="'+d.id+'">Browse exercise library</button>'+'</section>').join('')+
  (days.length?'':empty('No workout days yet','Add a day, then add exercises.','add-day','Add workout day'));
@@ -92,6 +93,7 @@ async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(
  else if(a==='new-plan')form('New programme',field('Name','name','e.g. Upper / Lower'),'new-plan');
  else if(a==='open-plan'){state.page='plan';state.programme=id||state.programme;await render()}
  else if(a==='view-plan'){state.programme=id;state.page='plan';await render()}
+ else if(a==='day-detail'){state.day=id;state.page='dayDetail'}
  else if(a==='programmes'){state.page='programmes';await render()}
  else if(a==='open-plan'||a==='open-programme'){state.page='plan';await render()}
  else if(a==='add-day')form('Add workout day',field('Day name','name','e.g. Upper body'),'add-day');
@@ -195,3 +197,7 @@ function exportDataPage(){main.innerHTML='<div class="workout-topline"><button c
  '<section class="settings-card"><h3>Choose what to export</h3>'+[['programmes','Workout plans'],['sessions','Workout history'],['measurements','Body measurements'],['settings','Settings']].map(([id,label])=>'<div class="settings-row"><strong>'+label+'</strong><input class="switch" id="export-'+id+'" type="checkbox" checked></div>').join('')+'</section>'+
  '<section class="settings-card"><h3>Format</h3><p>JSON backup · preserves IDs and relationships for restoring this app</p></section>'+
  btn('export-now','Export selected data','class="button primary full-button"')}
+
+async function dayDetail(){const d=await get('days',state.day),p=d?await get('programmes',d.programme):null;if(!d){state.page='plan';return plan()}main.innerHTML='<div class="workout-topline"><button class="back-link" data-action="open-plan" data-id="'+d.programme+'">← Programme</button><button class="mini-action" data-action="edit-day" data-id="'+d.id+'">•••</button></div>'+heading('WORKOUT DAY',esc(d.name),(d.exercises||[]).length+' exercises · '+esc(p?.name||''))+
+ '<section class="recent-card">'+(d.exercises||[]).map((x,i)=>'<div class="plan-exercise-row"><div class="exercise-order">'+(i+1)+'</div><div class="exercise-detail"><strong>'+esc(x.name)+'</strong><p>'+x.sets+' sets · '+x.min+'–'+x.max+' reps · '+x.rir+' RIR</p></div></div>').join('')+'</section>'+
+ ((d.exercises||[]).length?btn('start-day','Start workout','data-id="'+d.id+'" class="button primary full-button"'):empty('No exercises yet','Add exercises in the programme editor.','open-plan','Edit programme'))}
