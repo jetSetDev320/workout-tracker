@@ -46,3 +46,6 @@ html[data-theme="dark"] .segmented-control button.selected{background:#263b58;co
 html[data-theme="dark"] .modal{background:#172438;color:#e6edf7}
 html[data-theme="dark"] .button.secondary{background:#24364e;color:#dbeafe;border-color:#354b69}
 html[data-theme="dark"] .button.danger{background:#3a2028!important;color:#ffb4b4!important;border-color:#71333d!important}
+
+/* Keep exercise helper text on its own line */
+.exercise-detail small{display:block}
