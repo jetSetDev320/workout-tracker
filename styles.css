@@ -23,3 +23,10 @@ html,body,.app-shell{background:#fff}
 .home-tile .tile-icon.history{background:#ece9ff;color:#7867f5}
 .home-tile .tile-icon.settings{background:#fff0e3;color:#f28a32}
 .home-tile .tile-icon svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+
+/* Five-column set editor: set number, two measurements, RIR, delete */
+.set-table-heading,.set-row{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 54px 28px;gap:6px}
+.set-row .mini-action{padding:5px;font-size:20px;line-height:1;color:#df5353}
+.phase-group{margin:14px 0 20px}.phase-group>.section-heading{margin:14px 2px 7px}
+button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:380px){.set-table-heading,.set-row{grid-template-columns:23px minmax(0,1fr) minmax(0,1fr) 48px 24px;gap:4px}.set-row input,.set-row select{padding:8px 4px}}
