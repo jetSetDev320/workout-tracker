@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f7fb">
+  <meta name="description" content="A private, local-first workout tracker.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Workout Tracker</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Workout Tracker home"><span class="brand-mark">W</span><span>workout<span class="brand-muted">tracker</span></span></a>
+      <button class="icon-button" data-action="open-settings" aria-label="Settings" title="Settings">⚙</button>
+    </header>
+    <main id="main" class="main-content" tabindex="-1" aria-live="polite">
+      <div class="loading-state">Loading your training space…</div>
+    </main>
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button data-nav="home" class="nav-item is-active"><span class="nav-icon">⌂</span><span>Home</span></button>
+      <button data-nav="programmes" class="nav-item"><span class="nav-icon">▤</span><span>Plan</span></button>
+      <button data-nav="progress" class="nav-item"><span class="nav-icon">◩</span><span>Progress</span></button>
+      <button data-nav="history" class="nav-item"><span class="nav-icon">◷</span><span>History</span></button>
+    </nav>
+  </div>
+  <dialog id="modal" class="modal"></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
