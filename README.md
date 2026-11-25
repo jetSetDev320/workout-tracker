@@ -8,7 +8,7 @@ A mobile-first, local-first workout tracker built with plain HTML, CSS and JavaS
 - Workout days and exercise prescriptions: sets, rep ranges and target reps in reserve (RIR).
 - Add, edit, remove and reorder workout days and exercises.
 - Per-set logging for load, reps and RIR, with autosave and last-session load suggestions.
-- Resume unfinished sessions, add/remove sets, session notes and a built-in rest timer.
+- Resume unfinished sessions and add extra working sets while training.
 - Double-progression guidance based on the last completed performance and target RIR.
 - Exercise progress view: select an exercise, filter the date range, and chart top weight, reps or per-set volume.
 - Set-by-set history and completed-session details.
