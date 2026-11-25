@@ -51,21 +51,21 @@ async function workout(){
 }
 async function progressDetail(){
  const sessions=(await all('sessions')).filter(x=>x.status==='done').sort((a,b)=>a.date.localeCompare(b.date)),sets=await all('sets'),by={};
- for(const session of sessions){for(const x of sets.filter(y=>y.session===session.id&&y.status==='done'&&y.weight!==''&&y.reps>0)){(by[x.exercise]??={name:x.name,rows:[]}).rows.push({...x,date:session.date})}}
+ for(const session of sessions){for(const x of sets.filter(y=>y.session===session.id&&y.status==='done'&&((y.weight!==''&&y.reps>0)||Number(y.duration)>0))){(by[x.exercise]??={name:x.name,rows:[]}).rows.push({...x,date:session.date})}}
  const entries=Object.entries(by).sort((a,b)=>a[1].name.localeCompare(b[1].name));
  if(!state.exercise||!by[state.exercise])state.exercise=entries[0]?.[0]||null;
  const ex=by[state.exercise],range=state.range||'all',cut=range==='all'?'0000-00-00':new Date(Date.now()-Number(range)*86400000).toISOString().slice(0,10);
  const rows=(ex?.rows||[]).filter(x=>x.date>=cut),metric=state.metric||'weight';
- const value=x=>metric==='reps'?Number(x.reps):metric==='volume'?Number(x.weight)*Number(x.reps):metric==='rir'?Number(x.rir):Number(x.weight);
- const label=metric==='reps'?'Reps':metric==='volume'?'Set volume':metric==='rir'?'RIR':'Top weight',unit=metric==='reps'?' reps':metric==='rir'?' RIR':' kg';
+ const timed=ex?.rows?.some(x=>Number(x.duration)>0),value=x=>timed?(metric==='distance'?Number(x.distance):Number(x.duration)):metric==='reps'?Number(x.reps):metric==='volume'?Number(x.weight)*Number(x.reps):metric==='rir'?Number(x.rir):Number(x.weight);
+ const label=timed?(metric==='distance'?'Distance':'Duration'):metric==='reps'?'Reps':metric==='volume'?'Set volume':metric==='rir'?'RIR':'Top weight',unit=timed?(metric==='distance'?' km':' sec'):metric==='reps'?' reps':metric==='rir'?' RIR':' kg';
  const grouped={};for(const x of rows){const n=Number(value(x));if(Number.isFinite(n))grouped[x.date]=metric==='rir'?(grouped[x.date]===undefined?n:Math.min(grouped[x.date],n)):Math.max(grouped[x.date]||0,n)}
  const points=Object.entries(grouped).map(([date,value])=>({date,value}));
  const best=(ex?.rows||[]).reduce((m,x)=>metric==='rir'?Math.min(m,value(x)):Math.max(m,value(x)),metric==='rir'?Infinity:0),last=rows[rows.length-1];
  main.innerHTML='<div class="workout-topline"><button class="back-link" data-action="progress-overview">← Progress overview</button></div>'+heading('TRAINING ANALYTICS','Progress that you can measure.','Select an exercise first; its charts and history appear below.')+
  '<section class="analytics-panel"><div class="form-grid analytics-controls"><label class="form-label">Exercise<select id="progressExercise">'+entries.map(([id,x])=>'<option value="'+esc(id)+'" '+(id===state.exercise?'selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></label><label class="form-label">Date range<select id="progressRange"><option value="all" '+(range==='all'?'selected':'')+'>All time</option><option value="30" '+(range==='30'?'selected':'')+'>30 days</option><option value="90" '+(range==='90'?'selected':'')+'>90 days</option><option value="180" '+(range==='180'?'selected':'')+'>6 months</option></select></label></div>'+
- (entries.length?'<div class="segmented-control">'+[['weight','Weight'],['reps','Reps'],['volume','Volume'],['rir','RIR']].map(([v,t])=>'<button type="button" data-action="metric" data-value="'+v+'" class="'+(metric===v?'selected':'')+'">'+t+'</button>').join('')+'</div>'+
+ (entries.length?'<div class="segmented-control">'+(timed?[['weight','Duration'],['distance','Distance']]:[['weight','Weight'],['reps','Reps'],['volume','Volume'],['rir','RIR']]).map(([v,t])=>'<button type="button" data-action="metric" data-value="'+v+'" class="'+(metric===v?'selected':'')+'">'+t+'</button>').join('')+'</div>'+
  '<div class="stat-grid"><div class="stat-card"><span>BEST '+label.toUpperCase()+'</span><strong>' +(Number.isFinite(best)?best:'—')+unit+'</strong></div><div class="stat-card"><span>LATEST</span><strong>'+(last?value(last)+unit:'—')+'</strong></div><div class="stat-card"><span>SETS IN RANGE</span><strong>'+rows.length+'</strong></div></div>'+
- '<section class="chart-panel"><h2>'+label+' over time</h2>'+chartSVG(points,label,unit)+'</section><section class="history-list"><h2>Set history</h2>'+rows.slice().reverse().map(x=>'<article class="history-session-card"><div><span class="eyebrow">'+esc(x.date)+'</span><strong>'+esc(x.name)+'</strong><p>'+x.weight+' kg × '+x.reps+' · RIR '+(x.rir??'—')+'</p></div></article>').join('')+'</section>':'<p class="empty-state">Complete a workout to see exercise progress.</p>')+'</section>'+
+ '<section class="chart-panel"><h2>'+label+' over time</h2>'+chartSVG(points,label,unit)+'</section><section class="history-list"><h2>Set history</h2>'+rows.slice().reverse().map(x=>'<article class="history-session-card"><div><span class="eyebrow">'+esc(x.date)+'</span><strong>'+esc(x.name)+'</strong><p>'+(Number(x.duration)>0?x.duration+' sec':x.weight+' kg × '+x.reps)+' · RIR '+(x.rir??'—')+'</p></div></article>').join('')+'</section>':'<p class="empty-state">Complete a workout to see exercise progress.</p>')+'</section>'+
  '<div class="toolbar-row"><button class="button primary" data-action="measurement">＋ Add body measurement</button><button class="button secondary" data-action="body">Body trends</button></div>';
 }
 async function history(){
@@ -167,7 +167,7 @@ init().catch(e=>{console.error(e);main.textContent='Could not open local databas
 
 async function exerciseRows(){
  const sessions=(await all('sessions')).filter(x=>x.status==='done').sort((a,b)=>a.date.localeCompare(b.date)),sets=await all('sets'),by={};
- for(const session of sessions)for(const x of sets.filter(y=>y.session===session.id&&y.status==='done'&&y.weight!==''&&y.reps!==''&&Number(y.reps)>0)){(by[x.exercise]??={name:x.name,rows:[]}).rows.push({...x,date:session.date})}
+ for(const session of sessions)for(const x of sets.filter(y=>y.session===session.id&&y.status==='done'&&((y.weight!==''&&y.reps!==''&&Number(y.reps)>0)||Number(y.duration)>0))){(by[x.exercise]??={name:x.name,rows:[]}).rows.push({...x,date:session.date})}
  return Object.entries(by).sort((a,b)=>a[1].name.localeCompare(b[1].name));
 }
 async function progress(){
