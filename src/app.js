@@ -224,7 +224,7 @@ function exportDataPage(){main.innerHTML='<div class="workout-topline"><button c
  btn('export-now','Export selected data','class="button primary full-button"')}
 
 async function dayDetail(){const d=await get('days',state.day),p=d?await get('programmes',d.programme):null;if(!d){state.page='plan';return plan()}main.innerHTML='<div class="workout-topline"><button class="back-link" data-action="open-plan" data-id="'+d.programme+'">← Programme</button><button class="mini-action" data-action="edit-day" data-id="'+d.id+'">•••</button></div>'+heading('WORKOUT DAY',esc(d.name),(d.exercises||[]).length+' exercises · '+esc(p?.name||''))+
- '<section class="recent-card">'+(d.exercises||[]).map((x,i)=>'<div class="plan-exercise-row"><div class="exercise-order">'+(i+1)+'</div><div class="exercise-detail"><strong>'+esc(x.name)+'</strong><p>'+x.sets+' sets · '+x.min+'–'+x.max+' reps · '+x.rir+' RIR</p></div></div>').join('')+'</section>'+
+ '<section class="recent-card">'+(d.exercises||[]).map((x,i)=>'<div class="plan-exercise-row"><div class="exercise-order">'+(i+1)+'</div><div class="exercise-detail"><strong>'+esc(x.name)+'</strong><p>'+x.sets+' sets · '+(x.tracking==='time'?'Timed · '+(x.min||'')+'–'+(x.max||'')+' sec':x.min+'–'+x.max+' reps · '+x.rir+' RIR')+'</p></div></div>').join('')+'</section>'+
  ((d.exercises||[]).length?btn('start-day','Start workout','data-id="'+d.id+'" class="button primary full-button"'):empty('No exercises yet','Add exercises in the programme editor.','open-plan','Edit programme'))}
 
 async function plan(){
