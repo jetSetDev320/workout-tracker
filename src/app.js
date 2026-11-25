@@ -29,7 +29,7 @@ async function render(){
 async function home(){
  const p=await active(), ss=await all('sessions'), days=p?(await all('days')).filter(d=>d.programme===p.id).sort((a,b)=>a.order-b.order):[];
  if(!p){main.innerHTML=heading('YOUR TRAINING SPACE','Build strength, one set at a time.','Private workout tracking on this device.')+`<section class="hero-card"><span class="pill pill-light">PRIVATE BY DESIGN</span><h2>Your first programme starts here.</h2><p>Create a programme or import a plan.</p>${btn('new-plan','Create a programme')}${btn('import-plan','Import JSON','')}</section>`;return}
- const done=ss.filter(s=>s.status==='done');
+ state.programme=p.id;const done=ss.filter(s=>s.status==='done');
  main.innerHTML=heading('OVERVIEW','Good training starts with a plan.',p.name)+`<div class="stat-grid"><div class="stat-card"><span>WORKOUTS</span><strong>${done.length}</strong></div><div class="stat-card"><span>PLAN DAYS</span><strong>${days.length}</strong></div></div><div class="section-heading"><h2>Active programme</h2>${btn('open-plan','Manage plan')}</div><div class="stack-list">${days.map(d=>`<article class="day-card"><div><h3>${esc(d.name)}</h3><p>${d.exercises.length} exercises</p></div>${btn('start-day','Start',`data-id="${d.id}"`)}</article>`).join('')}</div><div class="backup-reminder"><div><strong>Keep your data safe</strong><p>Export a backup regularly. Browser storage can be cleared.</p></div>${btn('backup','Export')}</div>`;
 }
 async function plans(){const ps=await all('programmes');main.innerHTML=heading('PLAN LIBRARY','Your programmes','Keep different training plans separate.')+`<div class="toolbar-row">${btn('new-plan','+ New programme')}${btn('import-plan','Import JSON')}${btn('prompt','Copy AI prompt')}</div><div class="programme-grid">${ps.map(p=>`<article class="programme-card"><span class="pill">${p.active?'ACTIVE':'INACTIVE'}</span><h2>${esc(p.name)}</h2><div class="toolbar-row">${btn('view-plan','View',`data-id="${p.id}"`)}${btn('activate','Set active',`data-id="${p.id}"`)}</div></article>`).join('')}</div>`}
@@ -41,8 +41,9 @@ function settings(){main.innerHTML=heading('PREFERENCES & DATA','Settings','Your
 function form(title,fields,action){show(`<form class="modal-content" data-form="${action}"><div class="modal-head"><h2>${title}</h2><button type="button" data-action="close-modal">×</button></div>${fields}<div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancel</button><button class="button primary">Save</button></div></form>`)}
 function field(label,name,placeholder='',type='text',value=''){return `<label class="form-label">${label}<input name="${name}" type="${type}" value="${esc(value)}" placeholder="${placeholder}" required></label>`}
 async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(!b)return;if(b.dataset.nav){state.page=b.dataset.nav;return render()}const a=b.dataset.action,id=b.dataset.id;try{
- if(a==='new-plan')form('New programme',field('Name','name','e.g. Upper / Lower'),'new-plan');
- else if(a==='open-plan'){state.page='plan';state.programme=id;await render()}
+ if(a==='open-settings'){state.page='settings'}
+ else if(a==='new-plan')form('New programme',field('Name','name','e.g. Upper / Lower'),'new-plan');
+ else if(a==='open-plan'){state.page='plan';state.programme=id||state.programme;await render()}
  else if(a==='view-plan'){state.programme=id;state.page='plan';await render()}
  else if(a==='programmes'){state.page='programmes';await render()}
  else if(a==='open-plan'||a==='open-programme'){state.page='plan';await render()}
