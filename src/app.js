@@ -4,7 +4,7 @@ let state={page:'home',programme:null,day:null,session:null,exercise:null,metric
 const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID(), today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}, stamp=()=>new Date().toISOString();
 const fileTimestamp=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+'-'+pad(d.getMinutes())+'-'+pad(d.getSeconds())};
-const aiPlanPrompt=()=>\`Create a workout plan that can be imported directly into my Gym Tracker app.
+const aiPlanPrompt=()=>`Create a workout plan that can be imported directly into my Gym Tracker app.
 
 Return ONLY valid JSON. No Markdown fences, explanations, or comments.
 
@@ -35,7 +35,7 @@ Rules:
 - For resistance exercises use tracking="weight_reps", min and max rep targets, and rir (0–5).
 - For cardio, holds, planks, or other time-based exercises use tracking="time" and unit="seconds" or "minutes". Do not invent a weight or rep range for timed exercises.
 - Use realistic, unambiguous exercise names and targets. Preserve the supplied programme's actual split, phase order, exercise selection, and progression. Do not add exercises or phases that were not requested.
-- Do not include commentary or extra properties. The app will create its own internal IDs when importing.\`;
+- Do not include commentary or extra properties. The app will create its own internal IDs when importing.`;
 const main=$('#main'), modal=$('#modal');
 function toast(s){const n=$('#toast');n.textContent=s;n.classList.add('is-visible');setTimeout(()=>n.classList.remove('is-visible'),2200)}
 function btn(action,label,extra=''){const match=extra.match(/class="([^"]*)"/),classes=match?match[1]:'button primary',attrs=extra.replace(/class="[^"]*"/,'');return `<button class="${classes}" data-action="${action}" ${attrs}>${label}</button>`}
