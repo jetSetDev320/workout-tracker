@@ -79,7 +79,10 @@ function settings(){main.innerHTML=heading('PREFERENCES & DATA','Settings','Your
 function form(title,fields,action){show(`<form class="modal-content" data-form="${action}"><div class="modal-head"><h2>${title}</h2><button type="button" data-action="close-modal">×</button></div>${fields}<div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancel</button><button class="button primary">Save</button></div></form>`)}
 function field(label,name,placeholder='',type='text',value='',required=true){return `<label class="form-label">${label}<input name="${name}" type="${type}" value="${esc(value)}" placeholder="${placeholder}" ${required?'required':''}></label>`}
 async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(!b)return;if(b.dataset.nav){state.page=b.dataset.nav;return render()}const a=b.dataset.action,id=b.dataset.id;try{
- if(a==='open-settings'){state.page='settings'}
+ if(a==='home'){state.page='home'}
+ else if(a==='history'){state.page='history'}
+ else if(a==='progress'){state.page='progress'}
+ else if(a==='open-settings'){state.page='settings'}
  else if(a==='body-progress'||a==='body'){state.page='body'}
   else if(a==='metric'){state.metric=b.dataset.value}
  else if(a==='measurement'){show('<form class="modal-content" data-form="measurement"><div class="modal-head"><h2>Body measurements</h2><button type="button" data-action="close-modal">×</button></div>'+field('Date','date','','date',today())+field('Body weight (kg)','weight','', 'number','',false)+field('Waist (cm)','waist','','number','',false)+field('Chest (cm)','chest','','number','',false)+field('Upper arm (cm)','upperArm','','number','',false)+field('Thigh (cm)','thigh','','number','',false)+field('Hips (cm)','hips','','number','',false)+'<div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancel</button><button class="button primary">Save</button></div></form>')}
