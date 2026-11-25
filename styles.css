@@ -30,3 +30,19 @@ html,body,.app-shell{background:#fff}
 .phase-group{margin:14px 0 20px}.phase-group>.section-heading{margin:14px 2px 7px}
 button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:380px){.set-table-heading,.set-row{grid-template-columns:23px minmax(0,1fr) minmax(0,1fr) 48px 24px;gap:4px}.set-row input,.set-row select{padding:8px 4px}}
+
+
+/* Audit fixes: explicit destructive-action contrast and selectable dark theme */
+.button.danger{background:#fff0f0!important;border:1px solid #f2b8b8!important;color:#b42318!important;box-shadow:none!important}
+.button.danger:hover{background:#ffe2e2!important}
+html[data-theme="dark"],html[data-theme="dark"] body,html[data-theme="dark"] .app-shell{background:#101827;color:#e6edf7}
+html[data-theme="dark"]{color-scheme:dark;--ink:#e6edf7;--muted:#9aabc2;--line:#29384d;--bg:#101827;--blue-soft:#1b3555;--shadow:0 2px 12px rgba(0,0,0,.22)}
+html[data-theme="dark"] .topbar,html[data-theme="dark"] .bottom-nav,html[data-theme="dark"] .settings-card,html[data-theme="dark"] .recent-card,html[data-theme="dark"] .stat-card,html[data-theme="dark"] .day-card,html[data-theme="dark"] .programme-card,html[data-theme="dark"] .day-editor-card,html[data-theme="dark"] .workout-exercise-card,html[data-theme="dark"] .history-session-card,html[data-theme="dark"] .analytics-panel,html[data-theme="dark"] .chart-panel,html[data-theme="dark"] .home-tile{background:#172438;color:#e6edf7;border-color:#29384d}
+html[data-theme="dark"] .home-tile:nth-child(n){background:#172438}
+html[data-theme="dark"] .set-row input,html[data-theme="dark"] .set-row select,html[data-theme="dark"] .form-label input,html[data-theme="dark"] .form-label select,html[data-theme="dark"] .filter-row select,html[data-theme="dark"] .analytics-controls select,html[data-theme="dark"] .session-notes textarea{background:#101827;color:#e6edf7;border-color:#35465e}
+html[data-theme="dark"] .empty-state{background:#172438;border-color:#35465e;color:#a9b9ce}
+html[data-theme="dark"] .segmented-control{background:#101827}
+html[data-theme="dark"] .segmented-control button.selected{background:#263b58;color:#8bbcff}
+html[data-theme="dark"] .modal{background:#172438;color:#e6edf7}
+html[data-theme="dark"] .button.secondary{background:#24364e;color:#dbeafe;border-color:#354b69}
+html[data-theme="dark"] .button.danger{background:#3a2028!important;color:#ffb4b4!important;border-color:#71333d!important}
