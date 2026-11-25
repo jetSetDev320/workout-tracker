@@ -1,27 +1,34 @@
 # Workout Tracker
 
-A mobile-first workout tracker designed for GitHub Pages. It uses plain HTML, CSS and JavaScript with IndexedDB for local storage. No backend, account, analytics or third-party runtime dependency.
+A mobile-first, local-first workout tracker built with plain HTML, CSS and JavaScript. It runs as a static site on GitHub Pages and stores training data in IndexedDB on the current browser and device. No account, backend, analytics or third-party runtime dependency.
 
 ## Features
 
-- Create multiple programmes and workout days.
-- Add, edit and remove exercises with set, rep-range and target-RIR prescriptions.
-- Log weight, reps and RIR per set; entries autosave locally.
-- Resume unfinished sessions and review completed sessions.
-- View exercise-level recorded set history and double-progression guidance based on completed reps and recorded RIR.
-- Record body weight, waist, chest, upper-arm and thigh measurements, with a body-weight trend chart.
-- Import a plan JSON file and export a full JSON backup.
-- Service-worker app-shell cache for offline reopening after the first visit.
+- Multiple training programmes with active-programme switching.
+- Workout days and exercise prescriptions: sets, rep ranges and target reps in reserve (RIR).
+- Add, edit, remove and reorder workout days and exercises.
+- Per-set logging for load, reps and RIR, with autosave and last-session load suggestions.
+- Resume unfinished sessions, add/remove sets, session notes and a built-in rest timer.
+- Double-progression guidance based on the last completed performance and target RIR.
+- Exercise progress view: select an exercise, filter the date range, and chart top weight, reps or per-set volume.
+- Set-by-set history and completed-session details.
+- Body weight, waist, chest, upper-arm, thigh and hip measurements, including body-weight trend.
+- JSON workout-plan import and full JSON backup/restore with validation and confirmation.
+- Installable PWA shell with offline reopening after the first successful load.
+
+## Use the app
+
+Open **https://jetsetdev320.github.io/workout-tracker/**. On a phone, use the browser's **Add to Home Screen** or **Install** option.
 
 ## Run locally
 
-Serve this directory from a local web server, for example:
+Serve this directory from a local web server:
 
 ```bash
 python -m http.server 8000
 ```
 
-Open http://localhost:8000. Opening `index.html` directly as a `file://` URL is not supported.
+Open http://localhost:8000. Opening `index.html` directly as a `file://` URL is not supported because the app uses IndexedDB and a service worker.
 
 ## Plan import format
 
@@ -43,10 +50,10 @@ Open http://localhost:8000. Opening `index.html` directly as a `file://` URL is 
 }
 ```
 
-## Privacy and backups
+## Data and privacy
 
-All workout data is stored in IndexedDB in the current browser on the current device. There is no cloud sync. Clearing browser site data can permanently erase it. Export backups regularly and store them somewhere separate from the device. Browser persistent-storage requests are best-effort; the browser decides whether to grant them.
+All training data stays in IndexedDB in the current browser on the current device. There is no cloud sync between devices. Clearing browser site data can permanently erase it. Export backups regularly and store them separately. Storage persistence is requested where the browser supports it, but the browser decides whether to grant it.
 
-## GitHub Pages
+## Deployment
 
-In **Settings → Pages**, choose **Deploy from a branch**, select branch `main` and folder `/ (root)`, then save. GitHub will publish the static app at `https://jetsetdev320.github.io/workout-tracker/`. The GitHub connection used here cannot change the repository's Pages setting, so this one-time setting must be enabled in the repository UI.
+GitHub Pages is configured to deploy from **GitHub Actions**. Every push to `main` runs the workflow in `.github/workflows/pages.yml`. No manual build step or framework installation is required; the repository root is uploaded as the static site.
