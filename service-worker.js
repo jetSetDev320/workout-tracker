@@ -1,4 +1,4 @@
-const CACHE='workout-tracker-v14';
+const CACHE='workout-tracker-v15';
 const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./icon.svg','./src/app.js','./src/db.js','./src/charts.js'];
 
 self.addEventListener('install',event=>{
@@ -21,7 +21,7 @@ self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET'||new URL(request.url).origin!==self.location.origin)return;
   const url=new URL(request.url);
-  const isAppAsset=url.pathname.endsWith('/')||/\\.(html|css|js|webmanifest|svg)$/.test(url.pathname);
+  const isAppAsset=url.pathname.endsWith('/')||/\.(html|css|js|webmanifest|svg)$/.test(url.pathname);
   if(isAppAsset){
     event.respondWith((async()=>{
       try{
