@@ -23,6 +23,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Validate static app
+        run: |
+          node --check src/app.js
+          node --check service-worker.js
+          node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest', 'utf8'))"
+          test -f index.html
+          test -f styles.css
+          test -f src/app.js
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
