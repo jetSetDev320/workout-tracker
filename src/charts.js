@@ -1,6 +1,6 @@
 export function chartSVG(points,label,suffix=''){
  const clean=points.map(p=>({...p,value:Number(p.value)})).filter(p=>Number.isFinite(p.value));
- if(!clean.length)return '<p class="empty-state">Complete a set to start this chart.</p>';
+ if(!clean.length)return '<p class="empty-state">'+(String(label).toLowerCase().includes('body')?'Add a body measurement to start this trend.':'Complete and save a set to start this chart.')+'</p>';
  const vals=clean.map(p=>p.value),lo=Math.min(...vals),hi=Math.max(...vals),span=Math.max(hi-lo,1);
  const x=i=>clean.length===1?300:40+i/(clean.length-1)*520;
  const y=v=>174-(v-lo)/span*132;
