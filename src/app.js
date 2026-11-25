@@ -195,7 +195,61 @@ async function submit(e){const f=e.target.closest('form[data-form]');if(!f)retur
  modal.close();await render();toast('Saved');
  }catch(err){toast(err.message)}}
 document.addEventListener('click',click);document.addEventListener('submit',submit);
-document.addEventListener('change',async e=>{if(e.target.dataset.field){const r=await get('sets',e.target.dataset.id),v=e.target.value;r[e.target.dataset.field]=v===''?null:Number(v);r.date=today();await put('sets',r);toast('Set saved')}if(e.target.id==='progressExercise'){state.exercise=e.target.value;state.progressView='detail';await render()} if(e.target.id==='historyProgramme'){state.historyProgramme=e.target.value;await render()} if(e.target.id==='historyStatus'){state.historyStatus=e.target.value;await render()}if(e.target.id==='progressRange'){state.range=e.target.value;await render()}if(e.target.id==='restore'){const input=e.target;const file=input.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!data||data.version!==1||!data.data||typeof data.data!=='object'||Array.isArray(data.data))throw Error('This file is not a supported Gym Tracker export.');let restoreData,selected=false;if(data.format==='workout-tracker-backup'){if(!stores.every(name=>Array.isArray(data.data[name])))throw Error('The full backup is incomplete or corrupted.');restoreData=data.data}else if(data.format==='workout-tracker-selected-export'){const allowed=['programmes','days','sessions','sets','measurements','settings'];const keys=Object.keys(data.data);if(!keys.length||keys.some(k=>!allowed.includes(k))||!keys.every(k=>Array.isArray(data.data[k])))throw Error('The selected-data export is incomplete or corrupted.');const current=Object.fromEntries(await Promise.all(stores.map(async name=>[name,await all(name)])));restoreData={...current,...data.data};selected=true}else throw Error('Unsupported file type. Choose a Gym Tracker backup or selected-data export.');const message=selected?'Replace only the data categories included in this export? Other categories will remain unchanged.':'Replace ALL local workout data with this backup?';if(!confirm(message))return;await replaceAll(restoreData);state.programme=null;state.session=null;state.page='home';toast(selected?'Selected data imported successfully':'Full backup restored');await render()}catch(err){toast('Import failed: '+err.message)}finally{input.value=''}}});
+function validateRestoreCollections(data,names){
+ for(const name of names){
+  if(!Array.isArray(data[name]))throw new Error('The "'+name+'" collection is missing or is not an array.');
+  const ids=new Set();
+  for(let i=0;i<data[name].length;i++){
+   const row=data[name][i];
+   if(!row||typeof row!=='object'||Array.isArray(row)||typeof row.id!=='string'||!row.id.trim())throw new Error('Invalid record in "'+name+'" at item '+(i+1)+': every record must have a non-empty ID.');
+   if(ids.has(row.id))throw new Error('Duplicate record ID "'+row.id+'" in "'+name+'".');
+   ids.add(row.id);
+  }
+ }
+}
+document.addEventListener('change',async e=>{
+ if(e.target.dataset.field){
+  const r=await get('sets',e.target.dataset.id),v=e.target.value;
+  r[e.target.dataset.field]=v===''?null:Number(v);r.date=today();await put('sets',r);toast('Set saved');
+ }
+ if(e.target.id==='progressExercise'){state.exercise=e.target.value;state.progressView='detail';await render()}
+ if(e.target.id==='historyProgramme'){state.historyProgramme=e.target.value;await render()}
+ if(e.target.id==='historyStatus'){state.historyStatus=e.target.value;await render()}
+ if(e.target.id==='progressRange'){state.range=e.target.value;await render()}
+ if(e.target.id==='restore'){
+  const input=e.target,file=input.files?.[0];
+  if(!file)return;
+  try{
+   let data;
+   try{data=JSON.parse(await file.text())}catch{throw new Error('This file is not valid JSON. Select a Gym Tracker backup/export JSON file.')}
+   if(!data||data.version!==1||!data.data||typeof data.data!=='object'||Array.isArray(data.data))throw new Error('Unsupported backup structure. Expected a version 1 Gym Tracker export with a data object.');
+   let restoreData,selected=false;
+   if(data.format==='workout-tracker-backup'){
+    validateRestoreCollections(data.data,stores);
+    restoreData=data.data;
+   }else if(data.format==='workout-tracker-selected-export'){
+    const allowed=['programmes','days','sessions','sets','measurements','settings'];
+    const keys=Object.keys(data.data);
+    if(!keys.length||keys.some(k=>!allowed.includes(k)))throw new Error('The selected export contains an unknown or empty data category.');
+    validateRestoreCollections(data.data,keys);
+    const current=Object.fromEntries(await Promise.all(stores.map(async name=>[name,await all(name)])));
+    restoreData={...current,...data.data};
+    validateRestoreCollections(restoreData,stores);
+    selected=true;
+   }else throw new Error('Unsupported export format: '+String(data.format||'missing format')+'. Use Import data for a Gym Tracker backup/export, not Import plan.');
+   const message=selected?'Import the selected categories from this file? Only categories present in the export will be replaced; all other local data will be kept.':'Restore this full backup? It will replace all local workout data on this device.';
+   if(!confirm(message))return;
+   await replaceAll(restoreData);
+   state.programme=null;state.session=null;state.exercise=null;state.page='home';
+   await render();
+   toast(selected?'Selected data imported successfully':'Full backup restored successfully');
+  }catch(err){
+   console.error('Gym Tracker restore failed:',err);
+   show('<div class="modal-content"><div class="modal-head"><h2>Import failed</h2><button type="button" data-action="close-modal">×</button></div><p>'+esc(err.message||'An unexpected error occurred while restoring the backup.')+'</p><p class="micro-hint">Your existing data has not been intentionally cleared. Do not delete browser data or uninstall the app. You can try again after checking the selected file.</p><div class="modal-actions"><button type="button" class="button primary" data-action="close-modal">Close</button></div></div>');
+  }finally{input.value=''}
+ }
+});
+
 async function init(){await openDB();try{await navigator.storage?.persist?.()}catch(e){}if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(console.warn);const picker=document.createElement('input');picker.id='filePicker';picker.type='file';picker.accept='.json,application/json';picker.hidden=true;document.body.append(picker);picker.addEventListener('change',async()=>{try{const json=parsePlan(await picker.files[0].text());await saveImportedPlan(json);state.page='plan';await render();toast('Plan imported')}catch(err){toast(err.message)}picker.value=''});await render()}
 init().catch(e=>{console.error(e);main.textContent='Could not open local database: '+e.message});
 
