@@ -115,8 +115,20 @@ async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(
  await render();
  }catch(err){console.error(err);toast(err.message||'Action failed')}}
 function download(data,name){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function parsePlan(raw){let data;try{data=JSON.parse(raw)}catch{throw Error('The selected file is not valid JSON.')}if(!data||!Array.isArray(data.days))throw Error('Invalid workout plan JSON: expected a days array.');return {name:data.programme?.name||data.name||'Imported programme',days:data.days}}
-async function saveImportedPlan(json){if(!json||!Array.isArray(json.days)||!json.days.length)throw Error('Plan must contain at least one workout day');const ps=await all('programmes'),p={id:uid(),name:json.name||'Imported programme',active:ps.length===0};await put('programmes',p);for(let i=0;i<json.days.length;i++){const day=json.days[i];if(!day.name)throw Error('Every workout day needs a name');const exercises=(day.exercises||[]).map(e=>{const min=Number(e.min??e.repMin??8),max=Number(e.max??e.repMax??12),sets=Number(e.sets||3),rir=Number(e.rir??e.rirTarget??2);if(!e.name||sets<1||min<1||max<min||rir<0||rir>5)throw Error('Invalid exercise prescription in '+day.name);return {id:uid(),name:String(e.name),sets,min,max,rir}});await put('days',{id:uid(),programme:p.id,name:String(day.name),order:i,exercises})}state.programme=p.id}
+function parsePlan(raw){
+ let data;try{data=JSON.parse(raw)}catch{throw Error('The selected file is not valid JSON.')}
+ if(!data||(!Array.isArray(data.days)&&!Array.isArray(data.phases)))throw Error('Invalid plan JSON: expected phases or days.');
+ if(Array.isArray(data.phases)){const days=[];for(const phase of data.phases){if(!phase.name||!Array.isArray(phase.days))throw Error('Each phase needs a name and a days array.');for(const day of phase.days)days.push({...day,phase:phase.name,phaseWeeks:phase.weeks||''})}return {name:data.name||data.programme?.name||'Imported programme',days}}
+ return {name:data.name||data.programme?.name||'Imported programme',days:data.days};
+}
+async function saveImportedPlan(json){
+ if(!json||!Array.isArray(json.days)||!json.days.length)throw Error('Plan must contain at least one workout day');
+ const ps=await all('programmes'),p={id:uid(),name:json.name||'Imported programme',active:ps.length===0};await put('programmes',p);
+ for(let i=0;i<json.days.length;i++){const day=json.days[i];if(!day.name)throw Error('Every workout day needs a name');
+ const exercises=(day.exercises||[]).map(e=>{const timed=e.tracking==='time'||e.mode==='time'||e.type==='cardio',min=Number(e.min??e.repMin??8),max=Number(e.max??e.repMax??12),sets=Number(e.sets||3),rir=Number(e.rir??e.rirTarget??2);if(!e.name||sets<1||(!timed&&(min<1||max<min))||rir<0||rir>5)throw Error('Invalid exercise prescription in '+day.name);return {id:uid(),name:String(e.name),sets,min,max,rir,tracking:timed?'time':'weight_reps',unit:timed?(e.unit||'seconds'):'kg'}});
+ await put('days',{id:uid(),programme:p.id,name:String(day.name),phase:day.phase||'Workouts',phaseWeeks:day.phaseWeeks||'',order:i,exercises})}
+ state.programme=p.id;
+}
 async function submit(e){const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();const v=Object.fromEntries(new FormData(f));const a=f.dataset.form;try{
  if(a==='measurement'){const row={id:uid(),date:v.date||today(),created:stamp()};for(const k of ['weight','waist','chest','upperArm','thigh','hips'])row[k]=v[k]===''||v[k]==null?null:Number(v[k]);if(!['weight','waist','chest','upperArm','thigh','hips'].some(k=>row[k]!==null))throw Error('Enter at least one measurement');await put('measurements',row);state.page='body'}
  if(a==='new-plan'){const p={id:uid(),name:v.name,active:(await all('programmes')).length===0};await put('programmes',p);state.programme=p.id;state.page='plan'}
