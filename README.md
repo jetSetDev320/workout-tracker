@@ -48,4 +48,4 @@ All workout data is stored in IndexedDB in the current browser on the current de
 
 ## GitHub Pages
 
-A GitHub Actions workflow is included at `.github/workflows/pages.yml`. In **Settings → Pages**, select **GitHub Actions** as the build and deployment source if it is not already selected. Each push to `main` will then trigger deployment.
+In **Settings → Pages**, choose **Deploy from a branch**, select branch `main` and folder `/ (root)`, then save. GitHub will publish the static app at `https://jetsetdev320.github.io/workout-tracker/`. The GitHub connection used here cannot change the repository's Pages setting, so this one-time setting must be enabled in the repository UI.
