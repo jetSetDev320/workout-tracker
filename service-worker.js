@@ -1,5 +1,5 @@
-const CACHE='workout-tracker-v5';
-const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./icon.svg','./src/app.js'];
+const CACHE='workout-tracker-v6';
+const FILES=['./','./index.html','./styles.css','./manifest.webmanifest','./icon.svg','./src/app.js','./src/db.js','./src/charts.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
 self.addEventListener('fetch',event=>{
