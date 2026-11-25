@@ -76,7 +76,7 @@ async function click(e){const b=e.target.closest('[data-action],[data-nav]');if(
  else if(a==='progress'){state.page='progress';state.progressView='overview'}
  else if(a==='open-settings'){state.page='settings'}
  else if(a==='export-data'){state.page='export'}
- else if(a==='export-now'){const names=['programmes','days','sessions','sets','measurements','settings'],data={format:'workout-tracker-backup',version:1,exportedAt:stamp(),data:{}};for(const n of names){const el=$('#export-'+n);if(el?.checked)data.data[n]=await all(n)}data.data.exercises=await all('exercises');download(data,'workout-tracker-export.json');toast('Export created')}
+ else if(a==='export-now'){const data={format:'workout-tracker-selected-export',version:1,exportedAt:stamp(),data:{}};for(const [id,names] of [['programmes',['programmes','days']],['sessions',['sessions','sets']],['measurements',['measurements']],['settings',['settings']]]){if($('#export-'+id)?.checked)for(const n of names)data.data[n]=await all(n)}download(data,'workout-tracker-selected-export.json');toast('Export created')}
  else if(a==='body-progress'||a==='body'){state.page='body'}
  else if(a==='progress-exercises'){state.progressView='list';state.page='progress'}
  else if(a==='exercise-detail'){state.exercise=id;state.progressView='detail';state.page='progress'}
